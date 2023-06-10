@@ -2,9 +2,11 @@ import cors from 'cors';
 import * as dotenv from 'dotenv';
 import express from 'express';
 
-import indexRouter from 'routes';
-
 dotenv.config();
+
+import indexRouter from 'routes';
+import todosRouter from 'routes/todos';
+
 console.clear();
 
 const PORT = process.env.PORT || 4001;
@@ -18,6 +20,7 @@ server.use(
 );
 
 server.use(indexRouter);
+server.use(express.json(), todosRouter);
 
 server.listen(PORT, () => {
     console.log(`Server is running, http://localhost:${PORT}`);
