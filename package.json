@@ -1,0 +1,61 @@
+{
+    "name": "todo-api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "commonjs",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/IvanGrekov/todo-api.git"
+    },
+    "keywords": [],
+    "author": "Ivan Grekov",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/IvanGrekov/todo-api/issues"
+    },
+    "homepage": "https://github.com/IvanGrekov/todo-api#readme",
+    "scripts": {
+        "build": "tsc && tsc-alias",
+        "start": "node dist/index.js",
+        "dev": "concurrently \"npx tsc-watch --onSuccess tsc-alias\" \"nodemon -q dist/index.js\"",
+        "format": "prettier -w . --ignore-path .gitignore",
+        "lint": "eslint . --ignore-path .gitignore",
+        "lint:fix": "eslint . --ignore-path .gitignore --fix",
+        "fix-code-style": "npm run format && npm run lint",
+        "prepare": "husky install"
+    },
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.1.4",
+        "express": "^4.18.2",
+        "pg": "^8.11.0",
+        "pg-hstore": "^2.3.4",
+        "sequelize": "^6.32.0"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.13",
+        "@types/express": "^4.17.17",
+        "@types/node": "^20.2.6",
+        "@types/pg": "^8.10.2",
+        "@typescript-eslint/eslint-plugin": "^5.59.9",
+        "concurrently": "^8.2.0",
+        "eslint": "^8.42.0",
+        "eslint-config-prettier": "^8.8.0",
+        "eslint-import-resolver-typescript": "^3.5.5",
+        "eslint-plugin-import": "^2.27.5",
+        "eslint-plugin-prettier": "^4.2.1",
+        "eslint-plugin-promise": "^6.1.1",
+        "husky": "^8.0.3",
+        "lint-staged": "^13.2.2",
+        "nodemon": "^2.0.22",
+        "prettier": "^2.8.8",
+        "ts-node": "^10.9.1",
+        "ts-unused-exports": "^9.0.4",
+        "tsc-alias": "^1.8.5",
+        "typescript": "4.9.5"
+    },
+    "lint-staged": {
+        "*.{js,ts}": "npm run fix-code-style"
+    }
+}
