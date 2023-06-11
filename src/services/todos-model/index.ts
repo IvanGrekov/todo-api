@@ -45,7 +45,9 @@ class TodosModel {
 
     public async getTodos(): Promise<ITodo[]> {
         try {
-            const todos = await TodoModel.findAll();
+            const todos = await TodoModel.findAll({
+                order: [['created_at', 'ASC']],
+            });
 
             return todos.map(this.normalize);
         } catch (error) {
