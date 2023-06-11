@@ -1,6 +1,4 @@
-import { Sequelize, DataTypes, Model } from 'sequelize';
-
-import { ITodo } from 'types/todo';
+import { Sequelize, DataTypes } from 'sequelize';
 
 const dialect = 'postgres';
 const host = process.env.DB_HOST || 'localhost';
@@ -13,7 +11,7 @@ const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
     dialect,
 });
 
-const TodoModel = sequelize.define<Model<ITodo>>(
+const TodoModel = sequelize.define(
     'Todo',
     {
         id: {
@@ -36,12 +34,19 @@ const TodoModel = sequelize.define<Model<ITodo>>(
             type: DataTypes.DATE,
             allowNull: false,
         },
+        createdAt: {
+            field: 'created_at',
+            type: DataTypes.DATE,
+            allowNull: false,
+            defaultValue: DataTypes.NOW,
+        },
     },
     {
         tableName: 'todos',
-        createdAt: false,
         updatedAt: false,
     },
 );
+
+sequelize.sync();
 
 export default TodoModel;
