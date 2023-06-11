@@ -17,7 +17,7 @@
     "homepage": "https://github.com/IvanGrekov/todo-api#readme",
     "scripts": {
         "build": "tsc && tsc-alias",
-        "start": "node dist/index.js",
+        "start": "npm run build && node dist/index.js",
         "dev": "concurrently \"npx tsc-watch --onSuccess tsc-alias\" \"nodemon -q dist/index.js\"",
         "format": "prettier -w . --ignore-path .gitignore",
         "lint": "eslint . --ignore-path .gitignore",
