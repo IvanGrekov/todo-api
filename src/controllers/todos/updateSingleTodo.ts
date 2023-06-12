@@ -1,10 +1,22 @@
 import todosModel from 'services/todos-model';
 import { TController } from 'types/controllers';
-import { sendIncorrectTodoFormatError } from 'utils/server.utils';
+import { sendIncorrectTodoFormatError, sendIncorrectTypeError } from 'utils/server.utils';
 
 const updateSingleTodo: TController = async (req, res) => {
     if (!req.body.todo) {
         sendIncorrectTodoFormatError(res, 'update');
+
+        return;
+    }
+
+    const { title, description, date, completed } = req.body.todo;
+    if (
+        typeof title !== 'string' ||
+        typeof description !== 'string' ||
+        typeof completed !== 'boolean' ||
+        typeof date !== 'string'
+    ) {
+        sendIncorrectTypeError(res);
 
         return;
     }

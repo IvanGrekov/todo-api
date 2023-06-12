@@ -1,7 +1,6 @@
 import todosModel from 'services/todos-model';
 import { TController } from 'types/controllers';
-import { sendIncorrectTodoFormatError } from 'utils/server.utils';
-import { generateId } from 'utils/todosModel.utils';
+import { sendIncorrectTodoFormatError, sendIncorrectTypeError } from 'utils/server.utils';
 
 const createSingleTodo: TController = async (req, res) => {
     if (!req.body.todo) {
@@ -10,10 +9,20 @@ const createSingleTodo: TController = async (req, res) => {
         return;
     }
 
+    const { title, description, date, completed } = req.body.todo;
+    if (
+        typeof title !== 'string' ||
+        typeof description !== 'string' ||
+        typeof date !== 'string' ||
+        typeof completed !== 'boolean'
+    ) {
+        sendIncorrectTypeError(res);
+
+        return;
+    }
+
     try {
-        const id = generateId();
-        await todosModel.createTodo({ id, ...req.body.todo });
-        const resultFromModel = await todosModel.getSingleTodo(id);
+        const resultFromModel = await todosModel.createTodo(req.body.todo);
 
         // NOTE: Created
         res.statusCode = 201;

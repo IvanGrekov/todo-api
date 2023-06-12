@@ -6,16 +6,17 @@ const dbName = process.env.DB_NAME || dialect;
 const dbUser = process.env.DB_USER || '';
 const dbPassword = process.env.DB_PASSWORD || '';
 
-const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
+export const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
     host,
     dialect,
 });
 
-const TodoModel = sequelize.define(
+export const TodoModel = sequelize.define(
     'Todo',
     {
         id: {
-            type: DataTypes.BIGINT,
+            type: DataTypes.UUID,
+            defaultValue: DataTypes.UUIDV4,
             primaryKey: true,
         },
         title: {
@@ -48,5 +49,3 @@ const TodoModel = sequelize.define(
 );
 
 sequelize.sync();
-
-export default TodoModel;

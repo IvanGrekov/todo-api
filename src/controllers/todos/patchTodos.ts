@@ -21,9 +21,11 @@ const patchTodos: TController = async (req, res) => {
         return;
     }
 
+    const transaction = await todosModel.createTransaction();
+
     try {
         for (const todo of req.body.todos) {
-            const { id } = todo;
+            const { id, title, description, date, completed } = todo;
 
             if (!id) {
                 sendIncorrectTypeError(res);
@@ -31,12 +33,26 @@ const patchTodos: TController = async (req, res) => {
                 return;
             }
 
-            await todosModel.patchTodo({ id, ...todo });
+            if (
+                typeof title !== 'string' &&
+                typeof description !== 'string' &&
+                typeof date !== 'string' &&
+                typeof completed !== 'boolean'
+            ) {
+                sendIncorrectTypeError(res);
+
+                return;
+            }
+
+            await todosModel.patchTodo({ id, ...todo }, transaction);
         }
+
+        await transaction.commit();
 
         res.statusCode = 200;
         res.send(await todosModel.getTodos());
     } catch {
+        await transaction.rollback();
         res.sendStatus(500);
     }
 };

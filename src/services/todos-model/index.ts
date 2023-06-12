@@ -1,6 +1,7 @@
-import TodoModel from 'services/todos-db';
-import { ITodo, TTodos, TTodoId } from 'types/todo';
-import { getIncorrectTodoTypeErrorMessage } from 'utils/errorMessages.utils';
+import { Transaction } from 'sequelize';
+
+import { TodoModel, sequelize } from 'services/todos-db';
+import { ITodo, TTodoId } from 'types/todo';
 
 class TodosModel {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,31 +17,23 @@ class TodosModel {
         };
     }
 
-    private async updateTodoQuery({
-        id,
-        title,
-        description,
-        date,
-        completed,
-    }: ITodo): Promise<void> {
+    private async updateTodoQuery(
+        { id, title, description, date, completed }: ITodo,
+        transaction?: Transaction,
+    ): Promise<void> {
         await TodoModel.update(
             { title, description, completed, date },
             {
                 where: {
                     id,
                 },
+                transaction,
             },
         );
     }
 
-    private async insertTodoQuery({
-        id,
-        title,
-        description,
-        date,
-        completed,
-    }: ITodo): Promise<void> {
-        await TodoModel.create({ id, title, description, date, completed });
+    public async createTransaction(): Promise<Transaction> {
+        return await sequelize.transaction();
     }
 
     public async getTodos(): Promise<ITodo[]> {
@@ -71,21 +64,14 @@ class TodosModel {
         }
     }
 
-    public async createTodo({ id, title, description, date, completed }: ITodo): Promise<void> {
-        if (
-            typeof title !== 'string' ||
-            typeof description !== 'string' ||
-            typeof date !== 'string' ||
-            typeof completed !== 'boolean'
-        ) {
-            throw new Error(getIncorrectTodoTypeErrorMessage());
-        }
-
+    public async createTodo(newTodo: ITodo, transaction?: Transaction): Promise<ITodo> {
         try {
-            await this.insertTodoQuery({ id, title, description, date, completed });
+            const todo = await TodoModel.create({ ...newTodo }, { transaction });
+
+            return this.normalize(todo);
         } catch (error) {
             console.error(error);
-            throw new Error(`Error while creating todo with title ${title}`);
+            throw new Error(`Error while creating todo with title ${newTodo.title}`);
         }
     }
 
@@ -103,69 +89,32 @@ class TodosModel {
     }
 
     public async updateTodo(updatingTodo: ITodo): Promise<void> {
-        const { id, title, description, date, completed } = updatingTodo;
-
-        if (
-            typeof title !== 'string' ||
-            typeof description !== 'string' ||
-            typeof completed !== 'boolean' ||
-            typeof date !== 'string'
-        ) {
-            throw new Error(getIncorrectTodoTypeErrorMessage());
-        }
-
         try {
             await this.updateTodoQuery(updatingTodo);
         } catch (error) {
             console.error(error);
-            throw new Error(`Error while updating todo with id ${id}`);
+            throw new Error(`Error while updating todo with id ${updatingTodo.id}`);
         }
     }
 
-    public async patchTodo(patchingTodo: ITodo): Promise<void> {
-        const { id, title, description, date, completed } = patchingTodo;
-
-        if (
-            typeof title !== 'string' &&
-            typeof description !== 'string' &&
-            typeof date !== 'string' &&
-            typeof completed !== 'boolean'
-        ) {
-            throw new Error(getIncorrectTodoTypeErrorMessage());
-        }
-
+    public async patchTodo(patchingTodo: ITodo, transaction?: Transaction): Promise<void> {
         try {
-            await this.updateTodoQuery(patchingTodo);
+            await this.updateTodoQuery(patchingTodo, transaction);
         } catch (error) {
             console.error(error);
-            throw new Error(`Error while patching todo with id ${id}`);
+            throw new Error(`Error while patching todo with id ${patchingTodo.id}`);
         }
     }
 
-    public async replaceTodos(newTodos: TTodos): Promise<void> {
+    public async deleteTodos(transaction?: Transaction): Promise<void> {
         try {
             await TodoModel.destroy({
                 where: {},
+                transaction,
             });
-
-            for (const newTodo of newTodos) {
-                const { id, title, description, date, completed } = newTodo;
-
-                if (
-                    !['string', 'number'].includes(typeof id) ||
-                    typeof title !== 'string' ||
-                    typeof description !== 'string' ||
-                    typeof date !== 'string' ||
-                    typeof completed !== 'boolean'
-                ) {
-                    throw new Error(getIncorrectTodoTypeErrorMessage(id));
-                }
-
-                await this.insertTodoQuery({ id, title, description, date, completed });
-            }
         } catch (error) {
             console.error(error);
-            throw new Error('Error while replacing todos');
+            throw new Error('Error while deleting todos');
         }
     }
 }
